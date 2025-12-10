@@ -2,6 +2,7 @@
 from pyomo.environ import (
     Var,
     Suffix,
+    check_optimal_termination,
     units as pyunits,
 )
 from pyomo.common.config import ConfigBlock, ConfigValue, In
@@ -15,9 +16,12 @@ from idaes.core import (
 from idaes.core.util.config import is_physical_parameter_block
 import idaes.core.util.scaling as iscale
 import idaes.logger as idaeslog
+from idaes.core.util.exceptions import InitializationError
 
-# Set up logger
-_log = idaeslog.getLogger(__name__)
+from watertap.core.solvers import get_solver
+
+# Import costing method
+from custom_cost_model import cost_filtration
 
 
 # When using this file the name "Filtration" is what is imported
@@ -86,9 +90,6 @@ class FiltrationData(UnitModelBlockData):
         # This creates blank scaling factors, which are populated later
         self.scaling_factor = Suffix(direction=Suffix.EXPORT)
 
-        # Next, get the base units of measurement from the property definition
-        units_meta = self.config.property_package.get_metadata().get_derived_units
-
         # Add unit variables
         self.recovery_mass_phase_comp = Var(
             self.config.property_package.phase_list,
@@ -120,16 +121,16 @@ class FiltrationData(UnitModelBlockData):
         self.properties_out = self.config.property_package.state_block_class(
             self.flowsheet().config.time,
             doc="Material properties of outlet",
-            **tmp_dict
+            **tmp_dict,
         )
         self.properties_waste = self.config.property_package.state_block_class(
             self.flowsheet().config.time, doc="Material properties of waste", **tmp_dict
         )
 
         # Add ports - oftentimes users interact with these rather than the state blocks
-        self.add_port(name="inlet", block=self.properties_in)
-        self.add_port(name="outlet", block=self.properties_out)
-        self.add_port(name="waste", block=self.properties_waste)
+        self.add_inlet_port(name="inlet", block=self.properties_in)
+        self.add_outlet_port(name="outlet", block=self.properties_out)
+        self.add_outlet_port(name="waste", block=self.properties_waste)
 
         # Add constraints
         # Usually unit models use a control volume to do the mass, energy, and momentum
@@ -145,19 +146,21 @@ class FiltrationData(UnitModelBlockData):
                 + b.properties_waste[0].flow_mass_phase_comp["Liq", j]
             )
 
-        @self.Constraint(doc="Isothermal assumption 1")
-        def eq_isothermal_1(b):
+        @self.Constraint(doc="Isothermal assumption for outlet")
+        def eq_isothermal_out(b):
             return b.properties_in[0].temperature == b.properties_out[0].temperature
 
-        @self.Constraint(doc="Isothermal assumption 2")
-        def eq_isothermal_2(b):
+        @self.Constraint(doc="Isothermal assumption for waste")
+        def eq_isothermal_waste(b):
             return b.properties_in[0].temperature == b.properties_waste[0].temperature
 
         @self.Constraint(doc="Isobaric assumption")
-        def eq_isobaric(b):
+        def eq_isobaric_out(b):
             return b.properties_in[0].pressure == b.properties_out[0].pressure
 
-        # Waste pressure should be set by the user
+        @self.Constraint(doc="Waste pressure assumption")
+        def eq_isobaric_waste(b):
+            return b.properties_in[0].pressure == b.properties_waste[0].pressure
 
         # Next, add constraints linking variables
         @self.Constraint(
@@ -181,6 +184,59 @@ class FiltrationData(UnitModelBlockData):
                 == b.properties_waste[0].flow_mass_phase_comp["Liq", j]
             )
 
+    def initialize_build(
+        self,
+        state_args=None,
+        outlvl=idaeslog.NOTSET,
+        solver=None,
+        optarg=None,
+    ):
+
+        init_log = idaeslog.getInitLogger(self.name, outlvl, tag="unit")
+        solve_log = idaeslog.getSolveLogger(self.name, outlvl, tag="unit")
+
+        opt = get_solver(solver, optarg)
+
+        # Initialize state blocks
+        # Inlet state block first
+        flags = self.properties_in.initialize(
+            outlvl=outlvl,
+            optarg=optarg,
+            solver=solver,
+            state_args=state_args,
+            hold_state=True,
+        )
+        init_log.info("Initialization Step 1a Complete.")
+
+        # Initialize outlet and waste state blocks
+        self.properties_out.initialize(
+            outlvl=outlvl,
+            optarg=optarg,
+            solver=solver,
+        )
+        init_log.info("Initialization Step 1b Complete.")
+
+        self.properties_waste.initialize(
+            outlvl=outlvl,
+            optarg=optarg,
+            solver=solver,
+        )
+
+        init_log.info("Initialization Step 1c Complete.")
+
+        # Solve unit
+        with idaeslog.solver_log(solve_log, idaeslog.DEBUG) as slc:
+            res = opt.solve(self, tee=slc.tee)
+
+        init_log.info("Initialization Step 2 {}.".format(idaeslog.condition(res)))
+
+        # Release Inlet state
+        self.properties_in.release_state(flags, outlvl=outlvl)
+        init_log.info("Initialization Complete: {}".format(idaeslog.condition(res)))
+
+        if not check_optimal_termination(res):
+            raise InitializationError(f"Unit model {self.name} failed to initialize.")
+
     def calculate_scaling_factors(self):
         super().calculate_scaling_factors()
 
@@ -194,16 +250,24 @@ class FiltrationData(UnitModelBlockData):
             )
             iscale.constraint_scaling_transform(c, sf)
 
-        for ind, c in self.eq_isothermal_1.items():
+        for ind, c in self.eq_isothermal_out.items():
             sf = iscale.get_scaling_factor(self.properties_in[0].temperature)
             iscale.constraint_scaling_transform(c, sf)
 
-        for ind, c in self.eq_isothermal_2.items():
+        for ind, c in self.eq_isothermal_waste.items():
             sf = iscale.get_scaling_factor(self.properties_in[0].temperature)
             iscale.constraint_scaling_transform(c, sf)
 
-        for ind, c in self.eq_isobaric.items():
+        for ind, c in self.eq_isobaric_out.items():
+            sf = iscale.get_scaling_factor(self.properties_in[0].pressure)
+            iscale.constraint_scaling_transform(c, sf)
+
+        for ind, c in self.eq_isobaric_waste.items():
             sf = iscale.get_scaling_factor(self.properties_in[0].pressure)
             iscale.constraint_scaling_transform(c, sf)
 
         # Other constraints don't need to be transformed
+
+    @property
+    def default_costing_method(self):
+        return cost_filtration
