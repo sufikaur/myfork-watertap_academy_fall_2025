@@ -20,7 +20,7 @@ from idaes.core import (
     MaterialBalanceType,
     EnergyBalanceType,
 )
-from idaes.core.base.components import Component
+from idaes.core.base.components import Component, Solvent
 from idaes.core.base.phases import LiquidPhase
 from idaes.core.util.initialization import (
     fix_state_vars,
@@ -38,28 +38,25 @@ import idaes.logger as idaeslog
 # Import WaterTAP solver
 from watertap.core.solvers import get_solver
 
-# Set up logger
-_log = idaeslog.getLogger(__name__)
 
-
-# When using this file the name "PropParameterBlock" is what is imported
-@declare_process_block_class("PropParameterBlock")
-class PropParameterData(PhysicalParameterBlock):
+# When using this file the name "CustomParameterBlock" is what is imported
+@declare_process_block_class("CustomParameterBlock")
+class CustomParameterData(PhysicalParameterBlock):
     CONFIG = PhysicalParameterBlock.CONFIG()
 
     def build(self):
         """
         Callable method for Block construction.
         """
-        super(PropParameterData, self).build()
+        super(CustomParameterData, self).build()
 
-        self._state_block_class = PropStateBlock
+        self._state_block_class = CustomStateBlock
 
         # Phases
         self.Liq = LiquidPhase()
 
         # Components
-        self.H2O = Component()
+        self.H2O = Solvent()
         self.TSS = Component()  # Total Suspended Solids
         self.NaCl = Component()
 
@@ -115,7 +112,7 @@ class PropParameterData(PhysicalParameterBlock):
         )
 
 
-class _PropStateBlock(StateBlock):
+class _CustomStateBlock(StateBlock):
     def initialize(
         self,
         state_args=None,
@@ -230,16 +227,15 @@ class _PropStateBlock(StateBlock):
         init_log.info_high("{} State Released.".format(self.name))
 
 
-@declare_process_block_class("PropStateBlock", block_class=_PropStateBlock)
-class PropStateBlockData(StateBlockData):
+@declare_process_block_class("CustomStateBlock", block_class=_CustomStateBlock)
+class CustomStateBlockData(StateBlockData):
     def build(self):
         """Callable method for Block construction."""
-        super(PropStateBlockData, self).build()
-
+        super(CustomStateBlockData, self).build()
         self.scaling_factor = Suffix(direction=Suffix.EXPORT)
 
         # First we create the state variables
-        # The following dictionary is used for providing initial values in line 229
+        # The following dictionary is used for providing initial values
         seawater_mass_frac_dict = {
             ("Liq", "TSS"): 50e-6,
             ("Liq", "NaCl"): 0.035,
