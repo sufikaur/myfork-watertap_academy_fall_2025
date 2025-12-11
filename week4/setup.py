@@ -1,12 +1,19 @@
 #!/usr/bin/env python
 
 import argparse
+from contextlib import chdir
 from glob import glob
 import os
 from pathlib import Path
 import shutil
 
-def main(debug=False, cleanup=False):
+script_dir = Path(__file__).parent.resolve()
+
+def main(**kwargs):
+    with chdir(script_dir):
+        copy_files(**kwargs)
+
+def copy_files(debug=False, cleanup=False):
     this_file = Path(__file__).name
     nawi_dir = Path.home() / ".nawi"
     custom_fs = nawi_dir / "custom_flowsheets"
