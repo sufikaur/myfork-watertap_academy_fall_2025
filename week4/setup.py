@@ -9,9 +9,11 @@ import shutil
 
 script_dir = Path(__file__).parent.resolve()
 
+
 def main(**kwargs):
     with chdir(script_dir):
         copy_files(**kwargs)
+
 
 def copy_files(debug=False, cleanup=False):
     this_file = Path(__file__).name
@@ -33,9 +35,12 @@ def copy_files(debug=False, cleanup=False):
                     print(f"copy '{pyfile}' -> {target}'")
                 shutil.copyfile(pyfile, target)
 
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument("-d", "--debug", action="store_true", help="Print some debug messages")
+    p.add_argument(
+        "-d", "--debug", action="store_true", help="Print some debug messages"
+    )
     p.add_argument("-c", "--cleanup", action="store_true", help="Remove file copies")
     args = p.parse_args()
     main(debug=args.debug, cleanup=args.cleanup)
