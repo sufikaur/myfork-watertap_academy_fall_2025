@@ -146,7 +146,7 @@ def export_variables(flowsheet=None, exports=None, build_options=None, **kwargs)
 
     # Pump operating conditions
     exports.add(
-        obj=fs.pump.efficiency_pump,
+        obj=fs.pump.efficiency_pump[0],
         name="Pump efficiency",
         ui_units=pyunits.dimensionless,
         display_units="fraction",
@@ -172,7 +172,7 @@ def export_variables(flowsheet=None, exports=None, build_options=None, **kwargs)
 
     # Reverse osmosis operating conditions
     exports.add(
-        obj=fs.RO.A_comp,
+        obj=fs.RO.A_comp[0, "H2O"],
         name="RO water permeability coefficient",
         ui_units=pyunits.m / pyunits.Pa / pyunits.s,
         display_units="m/Pa/s",
@@ -184,7 +184,7 @@ def export_variables(flowsheet=None, exports=None, build_options=None, **kwargs)
         output_category="Reverse Osmosis",
     )
     exports.add(
-        obj=fs.RO.B_comp,
+        obj=fs.RO.B_comp[0, "TDS"],
         name="RO salt permeability coefficient",
         ui_units=pyunits.m / pyunits.s,
         display_units="m/s",
@@ -258,7 +258,7 @@ def export_variables(flowsheet=None, exports=None, build_options=None, **kwargs)
 
     # Energy recovery device operating conditions
     exports.add(
-        obj=fs.erd.efficiency_pump,
+        obj=fs.erd.efficiency_pump[0],
         name="ERD pump efficiency",
         ui_units=pyunits.dimensionless,
         display_units="fraction",
@@ -381,17 +381,6 @@ def export_variables(flowsheet=None, exports=None, build_options=None, **kwargs)
         display_units="$/yr",
         rounding=3,
         description="Total annualized cost",
-        is_input=False,
-        is_output=True,
-        output_category="Cost metrics",
-    )
-    exports.add(
-        obj=fs.costing.specific_energy_consumption,
-        name="Specific energy consumption",
-        ui_units=pyunits.kWh / pyunits.m**3,
-        display_units="kWh/m3",
-        rounding=3,
-        description="Specific energy consumption with respect to influent flowrate",
         is_input=False,
         is_output=True,
         output_category="Cost metrics",

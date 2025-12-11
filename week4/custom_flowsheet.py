@@ -231,4 +231,3 @@ def display_costing(m):
 
 if __name__ == "__main__":
     m, results = main()
-    m.fs.product.display()
