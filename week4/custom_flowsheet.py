@@ -49,6 +49,7 @@ from translator import TranslatorCustomtoSW
 from custom_prop_model import CustomParameterBlock
 from custom_unit_model import Filtration
 
+
 def main():
     m = build()
     scale_system(m)
@@ -154,7 +155,9 @@ def scale_system(m):
         "flow_mass_phase_comp", 1e2, index=("Liq", "NaCl")
     )
     m.fs.properties.set_default_scaling("flow_mass_phase_comp", 1, index=("Liq", "H2O"))
-    m.fs.properties.set_default_scaling("flow_mass_phase_comp", 1e2, index=("Liq", "TDS"))
+    m.fs.properties.set_default_scaling(
+        "flow_mass_phase_comp", 1e2, index=("Liq", "TDS")
+    )
     set_scaling_factor(m.fs.pump.control_volume.work, 1e-3)
     set_scaling_factor(m.fs.erd.control_volume.work, 1e-3)
     set_scaling_factor(m.fs.RO.area, 1e-2)
@@ -169,7 +172,9 @@ def add_costing(m):
     m.fs.costing.base_currency = pyunits.USD_2020
 
     # Add costing blocks to unit models
-    m.fs.filtration.costing = UnitModelCostingBlock(flowsheet_costing_block=m.fs.costing)
+    m.fs.filtration.costing = UnitModelCostingBlock(
+        flowsheet_costing_block=m.fs.costing
+    )
     m.fs.pump.costing = UnitModelCostingBlock(flowsheet_costing_block=m.fs.costing)
     m.fs.RO.costing = UnitModelCostingBlock(flowsheet_costing_block=m.fs.costing)
     m.fs.erd.costing = UnitModelCostingBlock(flowsheet_costing_block=m.fs.costing)

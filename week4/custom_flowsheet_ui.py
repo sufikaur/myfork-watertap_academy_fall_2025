@@ -469,7 +469,8 @@ def export_variables(flowsheet=None, exports=None, build_options=None, **kwargs)
 
     # performance metrics
     recovery_vol = (
-        fs.product.properties[0].flow_vol_phase["Liq"] / fs.feed.properties[0].flow_vol_phase["Liq"]
+        fs.product.properties[0].flow_vol_phase["Liq"]
+        / fs.feed.properties[0].flow_vol_phase["Liq"]
     )
     exports.add(
         obj=recovery_vol,
