@@ -18,6 +18,7 @@ import idaes.core.util.scaling as iscale
 import idaes.logger as idaeslog
 from idaes.core.util.exceptions import InitializationError
 
+# Import WaterTAP solver
 from watertap.core.solvers import get_solver
 
 # Import costing method
@@ -28,7 +29,7 @@ from custom_cost_model import cost_filtration
 @declare_process_block_class("Filtration")
 class FiltrationData(UnitModelBlockData):
     """
-    Zero order filtration model
+    Custom filtration model
     """
 
     # CONFIG are options for the unit model, this simple model only has the mandatory config options
@@ -146,19 +147,19 @@ class FiltrationData(UnitModelBlockData):
                 + b.properties_waste[0].flow_mass_phase_comp["Liq", j]
             )
 
-        @self.Constraint(doc="Isothermal assumption for outlet")
+        @self.Constraint(doc="Isothermal outlet assumption")
         def eq_isothermal_out(b):
             return b.properties_in[0].temperature == b.properties_out[0].temperature
 
-        @self.Constraint(doc="Isothermal assumption for waste")
+        @self.Constraint(doc="Isothermal waste assumption")
         def eq_isothermal_waste(b):
             return b.properties_in[0].temperature == b.properties_waste[0].temperature
 
-        @self.Constraint(doc="Isobaric assumption")
+        @self.Constraint(doc="Isobaric outlet assumption")
         def eq_isobaric_out(b):
             return b.properties_in[0].pressure == b.properties_out[0].pressure
 
-        @self.Constraint(doc="Waste pressure assumption")
+        @self.Constraint(doc="Isobaric waste assumption")
         def eq_isobaric_waste(b):
             return b.properties_in[0].pressure == b.properties_waste[0].pressure
 
@@ -208,7 +209,7 @@ class FiltrationData(UnitModelBlockData):
         )
         init_log.info("Initialization Step 1a Complete.")
 
-        # Initialize outlet and waste state blocks
+        # Initialize outlet state block
         self.properties_out.initialize(
             outlvl=outlvl,
             optarg=optarg,
@@ -216,6 +217,7 @@ class FiltrationData(UnitModelBlockData):
         )
         init_log.info("Initialization Step 1b Complete.")
 
+        # Initialize waste state block
         self.properties_waste.initialize(
             outlvl=outlvl,
             optarg=optarg,

@@ -7,8 +7,8 @@ from pyomo.environ import (
     Reals,
     NonNegativeReals,
     Suffix,
+    units as pyunits,
 )
-from pyomo.environ import units as pyunits
 
 # Import IDAES cores
 from idaes.core import (
