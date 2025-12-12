@@ -50,7 +50,7 @@ def export_variables(flowsheet=None, exports=None, build_options=None, **kwargs)
         name="Feed volumetric flow rate",
         ui_units=pyunits.m**3 / pyunits.s,
         display_units="m3/s",
-        rounding=2,
+        rounding=4,
         description="Inlet volumetric flow rate",
         is_input=True,
         input_category="Feed",
