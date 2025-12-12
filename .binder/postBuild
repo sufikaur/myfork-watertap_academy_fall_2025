@@ -7,3 +7,4 @@ python -m ipykernel install --user --name watertap-academy
 jupyter kernelspec list
 jupyter kernelspec remove -f python3
 jupyter kernelspec list 
+echo 'c.KernelSpecManager.allowed_kernelspecs = ["watertap-academy"]' >> ~/.jupyter/jupyter_lab_config.py
