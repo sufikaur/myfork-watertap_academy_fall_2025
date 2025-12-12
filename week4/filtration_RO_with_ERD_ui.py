@@ -17,7 +17,7 @@ from pyomo.environ import units as pyunits, TransformationFactory
 
 from idaes_flowsheet_processor.api import FlowsheetInterface
 
-from custom_flowsheet import (
+from filtration_RO_with_ERD import (
     build,
     scale_system,
     add_costing,
@@ -31,7 +31,7 @@ def export_to_ui():
     Exports the variables, flowsheet build, and solver results to the GUI.
     """
     return FlowsheetInterface(
-        name="Custom",
+        name="Filtration RO with ERD",
         do_export=export_variables,
         do_build=build_flowsheet,
         do_solve=solve_flowsheet,
