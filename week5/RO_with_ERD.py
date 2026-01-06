@@ -40,7 +40,6 @@ def main():
     return m, results
 
 
-
 def build():
     m = ConcreteModel()
     m.fs = FlowsheetBlock(dynamic=False)
@@ -175,4 +174,3 @@ def display_costing(m):
 if __name__ == "__main__":
     # m, results = main()
     m = param_sweep()
-

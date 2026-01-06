@@ -101,7 +101,7 @@ if __name__ == "__main__":
     solver = get_solver()
 
     for parameter in ["A_comp", "B_comp", "recovery"]:
-    # for parameter in ["recovery"]:
+        # for parameter in ["recovery"]:
         kwargs_dict = {
             "h5_results_file_name": f"test_{parameter}.h5",
             "build_model": param_sweep,
@@ -147,7 +147,6 @@ if __name__ == "__main__":
             colors.extend(["#1f77b4", "#ff7f0e", "#2ca02c"])
             hatch.extend(["..", "//", "xx"])
 
-
         x = df[f"# {parameter}"]
 
         fig, ax = plt.subplots()
@@ -159,9 +158,7 @@ if __name__ == "__main__":
             edgecolor="black",
             hatch=hatch,
         )
-        ax.plot(
-            x, df["fs.costing.LCOW"], color="red", label="Total LCOW", linewidth=2
-        )
+        ax.plot(x, df["fs.costing.LCOW"], color="red", label="Total LCOW", linewidth=2)
         ax.legend()
         ax.axhline(0, linewidth=2, color="black")
         ax.set_title(f"Parameter Sweep: {parameter}")
