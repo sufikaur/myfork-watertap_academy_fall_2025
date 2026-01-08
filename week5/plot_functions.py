@@ -46,7 +46,7 @@ def plot_sweep_results(recoverys, lcows, pressure, base_recovery, base_lcow, bas
     ax2.legend()
 
 def make_stacked_plot(
-    file_save="parameter_sweep_results.csv",
+    file_name="parameter_sweep_results.csv",
     parameter="Water Recovery",
     units=["RO", "ERD", "Pump"],
     unit_colors=["#1f77b4", "#ff7f0e", "#2ca02c"],
@@ -62,7 +62,7 @@ def make_stacked_plot(
 
     ################################################
 
-    df = pd.read_csv(file_save)
+    df = pd.read_csv(file_name)
     df.set_index(f"# {parameter}", inplace=True)
     df.sort_values(by=f"# {parameter}", inplace=True)
 
