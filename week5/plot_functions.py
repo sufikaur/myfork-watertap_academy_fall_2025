@@ -6,10 +6,13 @@ from scipy.interpolate import griddata
 import numpy as np
 import pandas as pd
 
-# Plot results
-def plot_sweep_results(recoverys, lcows, pressure, base_recovery, base_lcow, base_pressure):
 
-    fig, (ax1, ax2) = plt.subplots(1,2, figsize=(12,5))
+# Plot results
+def plot_sweep_results(
+    recoverys, lcows, pressure, base_recovery, base_lcow, base_pressure
+):
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
     ax1.plot(recoverys, lcows, ls=":", marker=".")
     ax1.scatter(
         [base_recovery],
@@ -44,6 +47,7 @@ def plot_sweep_results(recoverys, lcows, pressure, base_recovery, base_lcow, bas
     )
     ax2.set_title("Pressure vs. Recovery")
     ax2.legend()
+
 
 def make_stacked_plot(
     file_name="parameter_sweep_results.csv",
@@ -119,7 +123,7 @@ def make_stacked_plot(
     ################################################
     # Plotting absolute LCOW contributions
 
-    fig, (ax,ax1) = plt.subplots(1,2, figsize=(14,6))
+    fig, (ax, ax1) = plt.subplots(1, 2, figsize=(14, 6))
 
     ax.stackplot(
         df.index,
@@ -184,6 +188,7 @@ def make_stacked_plot(
     ax1.set_xlabel(f"{parameter}", fontsize=fontsize)
     ax1.set_ylabel("Relative LCOW", fontsize=fontsize)
     ax1.tick_params(axis="both", labelsize=fontsize)
+
 
 def make_contour_plot(
     df,
