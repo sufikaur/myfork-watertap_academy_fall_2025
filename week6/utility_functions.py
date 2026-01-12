@@ -11,6 +11,9 @@ from watertap.core.solvers import get_solver
 
 def load_data(full_data):
     # # Load data
+    psi_to_pascal = 6894.75  # Pressure conversion
+    gpm_to_m3ps = 6.309e-005  # Vol. flow conversion
+
     dt = full_data[
         [
             "Time",
@@ -70,6 +73,9 @@ def load_data(full_data):
         inplace=True,
     )
     dt["RO_recovery_%"] = dt["Qp_gpm"] / dt["Qr+Qp+Qb_gpm"]
+    # dt["pressure_in"] = dt["Pf_psi"] * psi_to_pascal
+    # dt["flow_vol_permeate"] = dt["Qp_gpm"] * gpm_to_m3ps
+    dt["mass_frac_TDS_permeate"] = dt["Cp_ppm"] * 1e-6
 
     dt.rename(
         columns={
@@ -78,7 +84,7 @@ def load_data(full_data):
             "RO_feed_mass_frac": "mass_frac_TDS_in",
             "RO_deltaP_psi": "deltaP",
             "Qp_gpm": "flow_vol_permeate",
-            "Cp_ppm": "mass_frac_TDS_permeate",
+            "Cp_ppm": "conc_frac_TDS_permeate",
         },
         inplace=True,
     )
@@ -88,8 +94,8 @@ def load_data(full_data):
         "mass_frac_TDS_in",
         "pressure_in",
         "deltaP",
-        "RO_recovery_%",
         "flow_vol_permeate",
+        # "conc_frac_TDS_permeate",
         "mass_frac_TDS_permeate",
     ]
     dt = dt[subset_cols]
