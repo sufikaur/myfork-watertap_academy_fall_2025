@@ -50,18 +50,19 @@ def synthetic_parameter_sweep(T_range, do_range):
     )
 
 
-def plot_synthetic_data_vs_do(temps=[45, 95]):
+def plot_synthetic_data_vs_do(temps=[45, 95], ax=None):
     # Load data
     survey_path = "week7/synthetic_corrosion_data/synthetic_potential_difference.csv"
     data = pd.read_csv(survey_path)
     cmap = plt.get_cmap("Blues")
-    colors = [cmap(i) for i in np.linspace(0.3, 1, len(temps))]
+    colors = [cmap(i) for i in np.linspace(0.4, 1, len(temps))]
 
-    fig = plt.figure(figsize=(3.25, 3.25))
-    plt.axhline(y=0, color="k")
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(3.25, 3.25))
+    ax.axhline(y=0, color="k")
     for i, t in enumerate(temps):
         data_t = data[data["temperature_C"] == t]
-        plt.plot(
+        ax.plot(
             data_t["do_mg_L"],
             data_t["synthetic_potential_difference_V"],
             marker=".",
@@ -70,28 +71,46 @@ def plot_synthetic_data_vs_do(temps=[45, 95]):
             markeredgecolor=colors[i],
             label=f"{t} C",
         )
-    plt.legend(frameon=False)
-    plt.xlabel("Dissolved oxygen (mg/L)")
-    plt.ylabel(r"$V_{r}-V_{c}$ (V (SHE))")
-    plt.xlim([0, 8])
-    plt.ylim([-0.2, 0.6])
-    plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8])
+    ax.legend(frameon=False)
+    ax.set_xlabel("Dissolved oxygen (mg/L)")
+    ax.set_ylabel(r"$V_{r}-V_{c}$ (V (SHE))")
+    ax.set_xlim([0, 8])
+    ax.set_ylim([-0.3, 0.6])
+    ax.fill_between(
+        ax.get_xlim(),
+        ax.get_ylim()[0],
+        0,
+        color='indianred',
+        alpha=0.25,
+        zorder=0
+    )
+    ax.text(
+        0.5,
+        -0.25,
+        'Localized Corrosion',
+        ha='left',
+        va='center',
+        fontsize=9,
+        color='black'
+    )
+    ax.set_xticks([0, 1, 2, 3, 4, 5, 6, 7, 8])
+    ax.set_yticks([-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6])
     plt.tight_layout()
     plt.savefig("week7/synthetic_corrosion_data/synthetic_data_vs_do.svg")
 
 
-def plot_synthetic_data_vs_temp(do=[0, 1, 8]):
+def plot_synthetic_data_vs_temp(do=[0, 1, 8], ax=None):
     # Load data
     survey_path = "week7/synthetic_corrosion_data/synthetic_potential_difference.csv"
     data = pd.read_csv(survey_path)
     cmap = plt.get_cmap("Greens")
-    colors = [cmap(i) for i in np.linspace(0.3, 1, len(do))]
-
-    fig = plt.figure(figsize=(3.25, 3.25))
-    plt.axhline(y=0, color="k")
+    colors = [cmap(i) for i in np.linspace(0.4, 1, len(do))]
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(3.25, 3.25))
+    ax.axhline(y=0, color="k")
     for i, t in enumerate(do):
         data_t = data[data["do_mg_L"] == t]
-        plt.plot(
+        ax.plot(
             data_t["temperature_C"],
             data_t["synthetic_potential_difference_V"],
             marker=".",
@@ -100,12 +119,30 @@ def plot_synthetic_data_vs_temp(do=[0, 1, 8]):
             markeredgecolor=colors[i],
             label=f"{t} mg/L",
         )
-    plt.legend(frameon=False)
-    plt.xlabel("Temperature (C)")
-    plt.ylabel(r"$V_{r}-V_{c}$ (V (SHE))")
-    plt.xlim([25, 95])
-    plt.ylim([-0.2, 0.6])
-    plt.xticks([25, 35, 45, 55, 65, 75, 85, 95])
+    ax.legend(frameon=False)
+    ax.set_xlabel("Temperature (C)")
+    ax.set_ylabel(r"$V_{r}-V_{c}$ (V (SHE))")
+    ax.set_xlim([25, 95])
+    ax.set_ylim([-0.3, 0.6])
+    ax.fill_between(
+        ax.get_xlim(),
+        ax.get_ylim()[0],
+        0,
+        color='indianred',
+        alpha=0.25,
+        zorder=0
+    )
+    ax.text(
+        30,
+        -0.25,
+        'Localized Corrosion',
+        ha='left',
+        va='center',
+        fontsize=9,
+        color='black'
+    )
+    ax.set_xticks([25, 35, 45, 55, 65, 75, 85, 95])
+    ax.set_yticks([-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6])
     plt.tight_layout()
     plt.savefig("week7/synthetic_corrosion_data/synthetic_data_vs_temperature.svg")
 
@@ -141,3 +178,10 @@ if __name__ == "__main__":
     synthetic_parameter_sweep(T_range, do_range)
     plot_synthetic_data_vs_do([50, 70, 90])
     plot_synthetic_data_vs_temp()
+
+    # make panel figure
+    fig, axs = plt.subplots(1, 2, figsize=(6.5, 3.25))
+    plot_synthetic_data_vs_do([50, 70, 90], ax=axs[0])
+    plot_synthetic_data_vs_temp(ax=axs[1])
+    fig.tight_layout()
+    plt.savefig("week7/corrosion_demo_figures/synthetic_material_behavior.png")
