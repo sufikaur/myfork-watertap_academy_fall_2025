@@ -47,10 +47,10 @@ jobs:
         # but we still want to specify the Black version to use in requirements-dev.txt for local development
         # so we extract the relevant line and pass it to a simple `pip install`
         run: |
-          pip install --no-cache-dir black[jupyter]
+          pip install --no-cache-dir black[jupyter]==25.9.0
       - name: Run Black to verify that the committed code is formatted
         run: |
-          black --check .
+          black --check --verbose .
 
   notebooks:
     name: Test notebooks (py${{ matrix.python-version }}/${{ matrix.os }})
