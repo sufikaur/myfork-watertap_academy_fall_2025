@@ -55,7 +55,7 @@ jobs:
   notebooks:
     name: Test notebooks (py${{ matrix.python-version }}/${{ matrix.os }})
     runs-on: ${{ matrix.os-version }}
-    needs: [code-formatting]
+    # needs: [code-formatting]
     strategy:
       fail-fast: false
       matrix:
