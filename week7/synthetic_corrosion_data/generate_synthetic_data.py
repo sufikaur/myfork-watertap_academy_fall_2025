@@ -77,21 +77,16 @@ def plot_synthetic_data_vs_do(temps=[45, 95], ax=None):
     ax.set_xlim([0, 8])
     ax.set_ylim([-0.3, 0.6])
     ax.fill_between(
-        ax.get_xlim(),
-        ax.get_ylim()[0],
-        0,
-        color='indianred',
-        alpha=0.25,
-        zorder=0
+        ax.get_xlim(), ax.get_ylim()[0], 0, color="indianred", alpha=0.25, zorder=0
     )
     ax.text(
         0.5,
         -0.25,
-        'Localized Corrosion',
-        ha='left',
-        va='center',
+        "Localized Corrosion",
+        ha="left",
+        va="center",
         fontsize=9,
-        color='black'
+        color="black",
     )
     ax.set_xticks([0, 1, 2, 3, 4, 5, 6, 7, 8])
     ax.set_yticks([-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6])
@@ -125,21 +120,16 @@ def plot_synthetic_data_vs_temp(do=[0, 1, 8], ax=None):
     ax.set_xlim([25, 95])
     ax.set_ylim([-0.3, 0.6])
     ax.fill_between(
-        ax.get_xlim(),
-        ax.get_ylim()[0],
-        0,
-        color='indianred',
-        alpha=0.25,
-        zorder=0
+        ax.get_xlim(), ax.get_ylim()[0], 0, color="indianred", alpha=0.25, zorder=0
     )
     ax.text(
         30,
         -0.25,
-        'Localized Corrosion',
-        ha='left',
-        va='center',
+        "Localized Corrosion",
+        ha="left",
+        va="center",
         fontsize=9,
-        color='black'
+        color="black",
     )
     ax.set_xticks([25, 35, 45, 55, 65, 75, 85, 95])
     ax.set_yticks([-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6])

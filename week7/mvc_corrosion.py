@@ -138,7 +138,10 @@ def single_run(
 
     return m, results
 
-def build_system_demo(material='Duplex stainless 2205', recovery=0.58, feed_salinity=70):
+
+def build_system_demo(
+    material="Duplex stainless 2205", recovery=0.58, feed_salinity=70
+):
     m = build(material=material)
     set_operating_conditions(m)
     add_Q_ext(m, time_point=m.fs.config.time)
@@ -157,7 +160,9 @@ def build_system_demo(material='Duplex stainless 2205', recovery=0.58, feed_sali
     assert_optimal_termination(results)
 
     # Second solve with LCOW optimization - conditions of 100 g/kg, 50% recovery
-    add_evap_hx_material_factor_equal_constraint(m) # make evaporator and heat exchanger be made of the same material
+    add_evap_hx_material_factor_equal_constraint(
+        m
+    )  # make evaporator and heat exchanger be made of the same material
     m.fs.Q_ext[0].fix(0)  # no longer want external heating in evaporator
     del m.fs.objective
     set_up_optimization(m)
@@ -167,19 +172,24 @@ def build_system_demo(material='Duplex stainless 2205', recovery=0.58, feed_sali
     m.fs.recovery[0].fix(recovery)
     m.fs.feed.properties[0].mass_frac_phase_comp["Liq", "TDS"].fix(feed_salinity / 1e3)
     # update evaporator material factor to be a linear function of the brine salinity (only for this case)
-    brine_salinity = feed_salinity/(1-recovery)
-    f_evap = (9-3)/(260-35)*(brine_salinity-35)+3
-    m.fs.costing.evaporator.material_factor_cost.fix(f_evap) # updated material factor cost to be higher corresponding to increase in brine salinity
+    brine_salinity = feed_salinity / (1 - recovery)
+    f_evap = (9 - 3) / (260 - 35) * (brine_salinity - 35) + 3
+    m.fs.costing.evaporator.material_factor_cost.fix(
+        f_evap
+    )  # updated material factor cost to be higher corresponding to increase in brine salinity
 
     # Add dissolved oxygen
-    m.fs.dissolved_oxygen = Var(initialize=0, units=pyunits.mg/pyunits.L, bounds=(0,8))
+    m.fs.dissolved_oxygen = Var(
+        initialize=0, units=pyunits.mg / pyunits.L, bounds=(0, 8)
+    )
     m.fs.dissolved_oxygen.fix()
 
     # Run solve in demo
     return m
 
+
 def build(material):
-    _log = idaeslog.getLogger(name='framework', level=50)
+    _log = idaeslog.getLogger(name="framework", level=50)
     # flowsheet set up
     m = ConcreteModel()
     m.fs = FlowsheetBlock(dynamic=False)
@@ -758,7 +768,7 @@ def set_operating_conditions(m):
     m.fs.evaporator.outlet_brine.temperature[0].fix(70 + 273.15)
     m.fs.evaporator.U.fix(3e3)  # W/K-m^2
     m.fs.evaporator.area.setub(1e4)  # m^2
-    m.fs.evaporator.area.setlb(300) # m^2
+    m.fs.evaporator.area.setlb(300)  # m^2
 
     # Compressor
     m.fs.compressor.pressure_ratio.fix(1.6)
