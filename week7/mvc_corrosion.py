@@ -175,7 +175,7 @@ def build_system_demo(material='Duplex stainless 2205', recovery=0.58, feed_sali
     m.fs.dissolved_oxygen = Var(initialize=0, units=pyunits.mg/pyunits.L, bounds=(0,8))
     m.fs.dissolved_oxygen.fix()
 
-    # results = solve(m, solver=solver, tee=False)
+    # Run solve in demo
     return m
 
 def build(material):
@@ -758,6 +758,7 @@ def set_operating_conditions(m):
     m.fs.evaporator.outlet_brine.temperature[0].fix(70 + 273.15)
     m.fs.evaporator.U.fix(3e3)  # W/K-m^2
     m.fs.evaporator.area.setub(1e4)  # m^2
+    m.fs.evaporator.area.setlb(300) # m^2
 
     # Compressor
     m.fs.compressor.pressure_ratio.fix(1.6)
@@ -901,7 +902,7 @@ def initialize_system(m, solver=None, output_level="ERROR"):
     m.fs.evaporator.properties_vapor[0].flow_mass_phase_comp["Vap", "H2O"].fix()
     # fixes and unfixes those values
     m.fs.evaporator.initialize(
-        delta_temperature_in=60, solver="ipopt-watertap", outlvl=output_level
+        delta_temperature_in=50, solver="ipopt-watertap", outlvl=output_level
     )
     m.fs.Q_ext[0].unfix()
     m.fs.evaporator.properties_vapor[0].flow_mass_phase_comp["Vap", "H2O"].unfix()
@@ -959,7 +960,7 @@ def initialize_system(m, solver=None, output_level="ERROR"):
             unit.flowsheet().Q_ext[0].fix()
             unit.properties_vapor[0].flow_mass_phase_comp["Vap", "H2O"].fix()
             unit.initialize(
-                delta_temperature_in=60, solver="ipopt-watertap", outlvl=output_level
+                delta_temperature_in=50, solver="ipopt-watertap", outlvl=output_level
             )
             unit.flowsheet().Q_ext[0].unfix()
             unit.properties_vapor[0].flow_mass_phase_comp["Vap", "H2O"].unfix()

@@ -223,7 +223,7 @@ class surrogateFitting:
                 len(self.training_samples[output])
             ] = new_sample
 
-    def plot_errors(self, output, folder):
+    def plot_errors(self, output, folder=None, filename=None):
         errors = ["MSE", "misclassification", "maxAE"]
         error_name = [
             "Mean square error",
@@ -250,19 +250,22 @@ class surrogateFitting:
             # ax[i].text(self.n_mid+2,np.mean(self.surrogates[output][err]), 'Final phase', fontsize=10)
             ax[i].legend(frameon=False)
         fig.tight_layout()
-        out_file = (
-            folder
-            + output
-            + "_"
-            + str(self.n_init)
-            + "_"
-            + str(self.n_mid)
-            + "_"
-            + str(self.n_final)
-            + "_"
-            + str(self.n_add)
-            + f"_{self.basis}_error_vs_iteration.png"
-        )
+        if filename is None:
+            out_file = (
+                folder
+                + output
+                + "_"
+                + str(self.n_init)
+                + "_"
+                + str(self.n_mid)
+                + "_"
+                + str(self.n_final)
+                + "_"
+                + str(self.n_add)
+                + f"_{self.basis}_error_vs_iteration.png"
+            )
+        else:
+            out_file = filename
         long_path = r"\\?\\" + os.path.abspath(str(out_file))
         plt.savefig(long_path, bbox_inches="tight", dpi=300)
 
