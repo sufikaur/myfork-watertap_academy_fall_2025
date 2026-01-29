@@ -125,3 +125,35 @@ jobs:
     - name: Run pytest with nbmake
       run: |
         pytest --nbmake --nbmake-kernel="${{ env.WATERTAP_KERNEL_NAME }}" **/*.ipynb
+
+    - name: Install reaktoro dependencies
+      run: |
+        set -e  # Exit immediately if a command exits with a non-zero status
+          
+        echo '::group:: set numpy version to 1.26.4'
+        pip uninstall -y numpy
+        pip install numpy==1.26.4
+        echo '::endgroup::'
+
+        echo '::group:: installing reaktoro dependencies'
+        conda install -c conda-forge reaktoro=2.12.3 cyipopt=1.4.1
+        pip install git+https://github.com/watertap-org/reaktoro-pse.git
+        echo '::endgroup::'
+
+        echo '::group::Display installed packages'
+        conda list
+        pip list
+        pip show idaes-pse
+        pip show watertap
+        pip show numpy
+        pip show pandas
+        echo '::endgroup::'
+    - name: Install Jupyter kernel for reaktoro
+      run: |
+        jupyter kernelspec list
+        python -m ipykernel install --user --name "${{ env.WATERTAP_KERNEL_NAME }}_reaktoro"
+        jupyter kernelspec list
+
+    - name: Run pytest with nbmake
+      run: |
+        pytest --nbmake --nbmake-kernel="${{ env.WATERTAP_KERNEL_NAME }}" **/*.ipynb
